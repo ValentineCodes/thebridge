@@ -14,7 +14,7 @@
 - [Quickstart](#quickstart)
 - [Deploying your Smart Contracts to a Live Network](#deploying-your-smart-contracts-to-a-live-network)
 - [Deploying your NextJS App](#deploying-your-nextjs-app)
-- [Interacting with your Smart Contracts: SE-2 Custom Hooks](#interacting-with-your-smart-contracts-se-2-custom-hooks)
+- [Interacting with your Smart Contracts: thebridge Custom Hooks](#interacting-with-your-smart-contracts-thebridge-custom-hooks)
 - [Disabling Type & Linting Error Checks](#disabling-type-and-linting-error-checks)
   - [Disabling commit checks](#disabling-commit-checks)
   - [Deploying to Vercel without any checks](#deploying-to-vercel-without-any-checks)
@@ -124,7 +124,7 @@ If you want to redeploy to the same production URL you can run `yarn vercel --pr
 
 **Make sure your `packages/nextjs/scaffold.config.ts` file has the values you need.**
 
-## Interacting with your Smart Contracts: SE-2 Custom Hooks
+## Interacting with your Smart Contracts: thebridge Custom Hooks
 
 Scaffold-ETH 2 provides a collection of custom React hooks designed to simplify interactions with your deployed smart contracts. These hooks are wrappers around `wagmi`, automatically loading the necessary contract ABI and address. They offer an easy-to-use interface for reading from, writing to, and monitoring events emitted by your smart contracts.
 
