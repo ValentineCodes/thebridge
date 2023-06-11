@@ -124,7 +124,7 @@ function BridgeForm({}: Props) {
 
           <SelectNetwork img={{url: '/images/polygon-icon.png', alt: 'polygon'}} networks={POLYGON_NETWORKS} onSelect={(chainId: number) => setNetworkChainId(networkChainId => ({...networkChainId, layer2: chainId}))} />
         </div>
-        {chain?.id !== selectedChainId && <Button label="Switch Network" className="w-full" onClick={() => switchNetwork?.(selectedChainId)} />}
+        {isConnected && chain?.id !== selectedChainId && <Button label="Switch Network" className="w-full" onClick={() => switchNetwork?.(selectedChainId)} />}
 
         <InputTokenAmountForm label="You send" vaults={isNetworkSwitched? MUMBAI_VAULTS : SEPOLIA_VAULTS} value={String(token.amount)} onChange={token => setToken(token)} />
         <div className='flex justify-between items-center text-sm text-gray-700'>
