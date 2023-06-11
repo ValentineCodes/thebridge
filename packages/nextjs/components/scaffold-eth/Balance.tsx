@@ -1,4 +1,8 @@
+import { ethers } from "ethers";
+import { useEffect, useState } from "react";
+import { useNetwork } from "wagmi";
 import { useAccountBalance } from "~~/hooks/scaffold-eth";
+import { getProvider } from "~~/utils/providers";
 import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
 type TBalanceProps = {
@@ -11,7 +15,49 @@ type TBalanceProps = {
  */
 export const Balance = ({ address, className = "" }: TBalanceProps) => {
   const configuredNetwork = getTargetNetwork();
-  const { balance, price, isError, isLoading, onToggleBalance, isEthBalance } = useAccountBalance(address);
+  const [isLoading, setIsLoading] = useState(true)
+  const [isError, setIsError] = useState(false)
+  const [balance, setBalance] = useState(null)
+  const { chain, chains } = useNetwork()
+
+  const readBalance = async () => {
+    if(!address) return
+    
+    setIsLoading(true)
+    try {
+      const provider = getProvider(String(chain.id))
+      const balance = await provider.getBalance(address!)
+
+      setBalance(Number(ethers.utils.formatEther(balance)).toFixed(4))
+      if(isError){
+        setIsError(false)
+      }
+    } catch(error) {
+      console.log(`Error reading balance`)
+      console.error(error)
+      setIsError(true)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    readBalance()
+  }, [address, chain])
+
+  const symbol = () => {
+    if(!chain) return 
+    switch (chain.name) {
+      case "Sepolia":
+        return "SEP";
+        break;
+      case "Chain 80001":
+        return "MATIC";
+        break
+      default:
+        break;
+    }
+  }
 
   if (!address || isLoading || balance === null) {
     return (
@@ -33,23 +79,9 @@ export const Balance = ({ address, className = "" }: TBalanceProps) => {
   }
 
   return (
-    <button
-      className={`btn btn-sm btn-ghost flex flex-col font-normal items-center hover:bg-transparent ${className}`}
-      onClick={onToggleBalance}
-    >
       <div className="w-full flex items-center justify-center">
-        {isEthBalance ? (
-          <>
-            <span>{balance?.toFixed(4)}</span>
-            <span className="text-xs font-bold ml-1">{configuredNetwork.nativeCurrency.symbol}</span>
-          </>
-        ) : (
-          <>
-            <span className="text-xs font-bold mr-1">$</span>
-            <span>{(balance * price).toFixed(2)}</span>
-          </>
-        )}
+            <span>{balance}</span>
+            <span className="text-xs font-bold ml-1">{symbol()}</span>
       </div>
-    </button>
   );
 };

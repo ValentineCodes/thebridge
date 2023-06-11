@@ -1,11 +1,10 @@
 import React, {useState, useEffect} from 'react'
-import { useSwitchNetwork, useChainId, useAccount, useSigner, useNetwork } from 'wagmi'
+import { useSwitchNetwork, useAccount, useSigner, useNetwork } from 'wagmi'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import SelectNetwork from '../SelectNetwork'
 import InputTokenAmountForm from './InputTokenAmountForm'
 import Button from '../Button'
 import { Select } from '@chakra-ui/react'
-import { useAccountBalance } from '~~/hooks/scaffold-eth'
 import { ethers } from 'ethers'
 import { notification } from '~~/utils/scaffold-eth'
 import { getProvider } from '~~/utils/providers'
@@ -46,8 +45,6 @@ function BridgeForm({}: Props) {
   const {data: signer, isLoading: isLoadingSigner} = useSigner()
   const [isDepositing, setIsDepositing] = useState(false)
   const { chain, chains } = useNetwork()
-
-  // console.log(chain)
 
   const deposit = async () => {
     if(isDepositing) return

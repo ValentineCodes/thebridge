@@ -32,35 +32,35 @@ export const RainbowKitCustomConnectButton = () => {
                 );
               }
 
-              if (chain.unsupported || chain.id !== configuredNetwork.id) {
-                return (
-                  <div className="dropdown dropdown-end">
-                    <label tabIndex={0} className="btn btn-error btn-sm dropdown-toggle">
-                      <span>Wrong network</span>
-                      <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
-                    </label>
-                    <ul tabIndex={0} className="dropdown-content menu p-2 mt-1 shadow-lg bg-base-100 rounded-box">
-                      <li>
-                        <button
-                          className="menu-item"
-                          type="button"
-                          onClick={() => switchNetwork?.(configuredNetwork.id)}
-                        >
-                          <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" />
-                          <span className="whitespace-nowrap">
-                            Switch to <span style={{ color: networkColor }}>{configuredNetwork.name}</span>
-                          </span>
-                        </button>
-                      </li>
-                      <li>
-                        <button className="menu-item text-error" type="button" onClick={() => disconnect()}>
-                          <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                );
-              }
+              // if (chain.unsupported || chain.id !== configuredNetwork.id) {
+              //   return (
+              //     <div className="dropdown dropdown-end">
+              //       <label tabIndex={0} className="btn btn-error btn-sm dropdown-toggle">
+              //         <span>Wrong network</span>
+              //         <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
+              //       </label>
+              //       <ul tabIndex={0} className="dropdown-content menu p-2 mt-1 shadow-lg bg-base-100 rounded-box">
+              //         <li>
+              //           <button
+              //             className="menu-item"
+              //             type="button"
+              //             onClick={() => switchNetwork?.(configuredNetwork.id)}
+              //           >
+              //             <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" />
+              //             <span className="whitespace-nowrap">
+              //               Switch to <span style={{ color: networkColor }}>{configuredNetwork.name}</span>
+              //             </span>
+              //           </button>
+              //         </li>
+              //         <li>
+              //           <button className="menu-item text-error" type="button" onClick={() => disconnect()}>
+              //             <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
+              //           </button>
+              //         </li>
+              //       </ul>
+              //     </div>
+              //   );
+              // }
 
               return (
                 <div className="px-2 flex justify-end items-center">
@@ -68,7 +68,7 @@ export const RainbowKitCustomConnectButton = () => {
                     <div className="flex flex-col items-center mr-1">
                       <Balance address={account.address} className="min-h-0 h-auto" />
                       <span className="text-xs" style={{ color: networkColor }}>
-                        {chain.name}
+                        {chain.name === "Chain 80001"? "Mumbai": chain.name}
                       </span>
                     </div>
                     <button
