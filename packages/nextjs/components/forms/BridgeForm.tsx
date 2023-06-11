@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
-import { useSwitchNetwork, useAccount, useSigner, useNetwork } from 'wagmi'
+import { useSwitchNetwork, useAccount, useNetwork } from 'wagmi'
+import { sendTransaction, prepareSendTransaction } from '@wagmi/core'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import SelectNetwork from '../SelectNetwork'
 import InputTokenAmountForm from './InputTokenAmountForm'
@@ -42,7 +43,6 @@ function BridgeForm({}: Props) {
   const {switchNetwork} = useSwitchNetwork()
   const {address: connectedAccount, isConnected} = useAccount()
   const [balance, setBalance] = useState<string | null>(null)
-  const {data: signer, isLoading: isLoadingSigner} = useSigner()
   const [isDepositing, setIsDepositing] = useState(false)
   const { chain, chains } = useNetwork()
 
@@ -52,15 +52,11 @@ function BridgeForm({}: Props) {
       notification.info("Connect Wallet")
       return
     }
-    if(isLoadingSigner) {
-      notification.info("Loading resources...")
-      return
-    }
     if(token.amount <= 0) {
       notification.warning("Invalid amount!")
       return
     }
-    if(balance !== null && token.amount > balance) {
+    if(balance !== null && token.amount > Number(balance)) {
       notification.error("Amount cannot exceed balance!")
       return
     }
@@ -68,11 +64,16 @@ function BridgeForm({}: Props) {
     let notificationId = notification.loading("Depositing")
     setIsDepositing(true)
     try {
-      const tx = await signer?.sendTransaction({
-        to: token.vault,
-        value: ethers.utils.parseEther(String(token.amount))
+      const config = await prepareSendTransaction({
+        request: { 
+          to: token.vault,
+          value: ethers.utils.parseEther(String(token.amount))
+        }
       })
-      await tx?.wait(1)
+       
+      const tx = await sendTransaction(config)
+      await tx.wait(1)
+
       notification.success("Successful Deposit")
     } catch(error) {
       notification.error(JSON.stringify(error))
