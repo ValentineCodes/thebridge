@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { useSwitchNetwork, useChainId, useAccount, useSigner } from 'wagmi'
+import { useSwitchNetwork, useChainId, useAccount, useSigner, useNetwork } from 'wagmi'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import SelectNetwork from '../SelectNetwork'
 import InputTokenAmountForm from './InputTokenAmountForm'
@@ -8,6 +8,7 @@ import { Select } from '@chakra-ui/react'
 import { useAccountBalance } from '~~/hooks/scaffold-eth'
 import { ethers } from 'ethers'
 import { notification } from '~~/utils/scaffold-eth'
+import { getProvider } from '~~/utils/providers'
 
 const ETHEREUM_NETWORKS = [{
   name: "Sepolia",
@@ -40,11 +41,13 @@ function BridgeForm({}: Props) {
   const [token, setToken] = useState({vault: "", amount: 0})
   const [receivedTokens, setReceivedTokens] = useState<TokenClone[] | null>(null)
   const {switchNetwork} = useSwitchNetwork()
-  const {address: account, isConnected} = useAccount()
-  const {balance, isLoading: isLoadingBalance} = useAccountBalance(account)
-  const chainId = useChainId()
+  const {address: connectedAccount, isConnected} = useAccount()
+  const [balance, setBalance] = useState<string | null>(null)
   const {data: signer, isLoading: isLoadingSigner} = useSigner()
   const [isDepositing, setIsDepositing] = useState(false)
+  const { chain, chains } = useNetwork()
+
+  // console.log(chain)
 
   const deposit = async () => {
     if(isDepositing) return
@@ -52,7 +55,7 @@ function BridgeForm({}: Props) {
       notification.info("Connect Wallet")
       return
     }
-    if(isLoadingSigner || isLoadingBalance) {
+    if(isLoadingSigner) {
       notification.info("Loading resources...")
       return
     }
@@ -60,7 +63,7 @@ function BridgeForm({}: Props) {
       notification.warning("Invalid amount!")
       return
     }
-    if(token.amount > balance!) {
+    if(balance !== null && token.amount > balance) {
       notification.error("Amount cannot exceed balance!")
       return
     }
@@ -81,6 +84,27 @@ function BridgeForm({}: Props) {
       setIsDepositing(false)
     }
   }
+
+  const readBalance = async () => {
+    if(!isConnected) return
+    
+    setBalance(null)
+    try {
+      // native token
+      const provider = getProvider(String(chain.id))
+      const balance = await provider.getBalance(connectedAccount!)
+
+      setBalance(Number(ethers.utils.formatEther(balance)).toFixed(4))
+
+    } catch(error) {
+      console.log(`Error reading balance`)
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    readBalance()
+  }, [isConnected, chain])
 
   useEffect(() => {
     if(isNetworkSwitched){
@@ -103,12 +127,12 @@ function BridgeForm({}: Props) {
 
           <SelectNetwork img={{url: '/images/polygon-icon.png', alt: 'polygon'}} networks={POLYGON_NETWORKS} onSelect={(chainId: number) => setNetworkChainId(networkChainId => ({...networkChainId, layer2: chainId}))} />
         </div>
-        {chainId !== selectedChainId && <Button label="Switch Network" className="w-full" onClick={() => switchNetwork?.(selectedChainId)} />}
+        {chain?.id !== selectedChainId && <Button label="Switch Network" className="w-full" onClick={() => switchNetwork?.(selectedChainId)} />}
 
         <InputTokenAmountForm label="You send" vaults={isNetworkSwitched? MUMBAI_VAULTS : SEPOLIA_VAULTS} value={String(token.amount)} onChange={token => setToken(token)} />
         <div className='flex justify-between items-center text-sm text-gray-700'>
           <p>1% fee</p>
-          <p>Balance: {balance?.toFixed(3)}</p>
+          <p>Balance: {balance}</p>
         </div>
 
         <div className='mt-5'>
