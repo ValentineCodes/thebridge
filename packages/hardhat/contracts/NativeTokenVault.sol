@@ -57,7 +57,7 @@ contract BridgeVault is Ownable {
     emit Transfer(owner, fees);
   }
 
-  function fees() public view returns (uint256) {
+  function getFees() public view returns (uint256) {
     return s_fees;
   }
 
