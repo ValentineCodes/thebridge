@@ -132,11 +132,11 @@ function WithdrawForm({}: Props) {
 
         <div className='mt-5'>
           <NumberInput className='flex mt-2'>
-            <NumberInputField className='w-full border border-gray-300 pl-2' placeholder='Amount' value={token.amount || ""} onChange={e => setToken(token => ({...token, amount: Number(e.target.value)}))} />
+            <NumberInputField type='number' className='w-full border border-gray-300 pl-2' placeholder='Amount' value={token.amount || ""} onChange={e => setToken(token => ({...token, amount: Number(e.target.value)}))} />
             <div className='w-[180px]'>
-                <Select defaultValue={tokens?.[0].address} className='w-[50px]' onChange={e => setToken(token => ({...token, address: e.target.value}))}>
+                <select defaultValue={tokens?.[0].address} className='min-w-[120px] h-full border border-[#CBD5E0] rounded-md px-2 bg-white' onChange={e => setToken(token => ({...token, address: e.target.value}))}>
                     {tokens?.map(token =>  <option key={token.name} value={token.address}>{token.name}</option>)}
-                </Select>
+                </select>
             </div>
           </NumberInput>
         </div>

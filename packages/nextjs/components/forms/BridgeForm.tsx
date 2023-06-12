@@ -136,11 +136,11 @@ function BridgeForm({}: Props) {
         <div className='mt-5'>
           <label className='text-gray-700 text-sm'>You receive</label>
           <div className='flex mt-2'>
-              <input className='w-full border border-gray-300 pl-2' placeholder='Amount' value={token.amount - (token.amount / 100) || ""} disabled />
+              <input className='w-full border border-gray-300 p-2 bg-white' placeholder='Amount' value={token.amount - (token.amount / 100) || ""} disabled />
               <div className='w-[180px]'>
-                  <Select defaultValue={receivedTokens?.[0].address.toLowerCase()} className='w-[50px]'>
+                  <select defaultValue={receivedTokens?.[0].address.toLowerCase()} className='min-w-[120px] h-full border border-[#CBD5E0] rounded-md px-2 bg-white'>
                       {receivedTokens?.map(token =>  <option key={token.name} value={token.address}>{token.name}</option>)}
-                  </Select>
+                  </select>
               </div>
           </div>
         </div>
