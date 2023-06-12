@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { useSwitchNetwork, useChainId, useAccount, useSigner } from 'wagmi'
+import { useSwitchNetwork, useChainId, useAccount, useSigner, erc20ABI, useNetwork } from 'wagmi'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import SelectNetwork from '../SelectNetwork'
 import Button from '../Button'
@@ -7,6 +7,7 @@ import { useDeployedContractInfo } from '~~/hooks/scaffold-eth'
 import { NumberInput, NumberInputField, Select } from '@chakra-ui/react'
 import { notification } from '~~/utils/scaffold-eth'
 import { ethers } from 'ethers'
+import { getProvider } from '~~/utils/providers'
 
 const ETHEREUM_NETWORKS = [{
   name: "Sepolia",
@@ -22,23 +23,24 @@ interface TokenClone {
   address: string;
 }
 
-const SEPOLIA_TOKENS_CLONES = [{name: "ETHc", address: ""}]
-const MUMBAI_TOKENS_CLONES = [{name: "MATICc", address: "0x10b9980C12DDC8B6b1d06C1d50B64f7d400CA0FD"}]
+const SEPOLIA_TOKENS_CLONES = [{name: "ETHc", address: "0x553Dacc2eca5D8e0810A98509A8E0A4e68D48792"}]
+const MUMBAI_TOKENS_CLONES = [{name: "MATICc", address: "0xc4875dd18c7ebc75c259cfe4f22b2C3D3B653474"}]
 
 type Props = {}
 function WithdrawForm({}: Props) {
   const [isNetworkSwitched, setIsNetworkSwitched] = useState(false)
   const {switchNetwork} = useSwitchNetwork()
-  const {address: account, isConnected} = useAccount()
-  const [balance, setBalance] = useState("")
+  const {address: connectedAccount, isConnected} = useAccount()
+  const [balance, setBalance] = useState<string | null>(null)
   const chainId = useChainId()
   const {data: signer, isLoading: isLoadingSigner} = useSigner()
   const [networkChainId, setNetworkChainId] = useState({layer1: ETHEREUM_NETWORKS[0].chainId, layer2: POLYGON_NETWORKS[0].chainId})
   const [selectedChainId, setSelectedChainId] = useState(ETHEREUM_NETWORKS[0].chainId)
-  const [token, setToken] = useState({address: "", amount: 0})
+  const [token, setToken] = useState({address: SEPOLIA_TOKENS_CLONES[0].address, amount: 0})
   const [isWithdrawing, setIsWithdrawing] = useState(false)
   const [tokens, setTokens] = useState<TokenClone[] | undefined>()
   const {data: bridgeTokenClone, isLoading: isLoadingBridgeTokenClone} = useDeployedContractInfo("BridgeTokenClone")
+  const { chain, chains } = useNetwork()
 
   const withdraw = async () => {
    if(isWithdrawing) return
@@ -79,13 +81,36 @@ function WithdrawForm({}: Props) {
     
   }
 
+  const readBalance = async () => {
+    if(!isConnected) return
+
+    setBalance(null)
+    try{
+      console.log(token)
+      const provider = getProvider(String(chain.id))
+      const _token = new ethers.Contract(token.address, erc20ABI, provider)
+      const balance = await _token.balanceOf(connectedAccount)
+
+      setBalance(Number(ethers.utils.formatEther(balance)).toFixed(4))
+    } catch(error) {
+      console.log(`Error reading balance`)
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    readBalance()
+  }, [isConnected, connectedAccount, chain])
+
   useEffect(() => {
     if(isNetworkSwitched){
       setSelectedChainId(networkChainId.layer2)
       setTokens(SEPOLIA_TOKENS_CLONES)
+      setToken(token => ({...token, address: SEPOLIA_TOKENS_CLONES[0].address}))
     } else {
       setSelectedChainId(networkChainId.layer1)
       setTokens(MUMBAI_TOKENS_CLONES)
+      setToken(token => ({...token, address: MUMBAI_TOKENS_CLONES[0].address}))
     }
   }, [networkChainId, isNetworkSwitched])
 
@@ -112,7 +137,7 @@ function WithdrawForm({}: Props) {
             </div>
           </NumberInput>
         </div>
-        <p className='text-right text-sm text-gray-700'>Balance: </p>
+        <p className='text-right text-sm text-gray-700'>Balance: {balance}</p>
 
         <Button label='Withdraw' className='w-full' onClick={withdraw} isLoading={isWithdrawing} />
       </>
