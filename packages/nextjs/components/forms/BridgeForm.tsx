@@ -130,7 +130,7 @@ function BridgeForm({}: Props) {
         <InputTokenAmountForm label="You send" vaults={isNetworkSwitched? MUMBAI_VAULTS : SEPOLIA_VAULTS} value={String(token.amount)} onChange={token => setToken(token)} />
         <div className='flex justify-between items-center text-sm text-gray-700'>
           <p>1% fee</p>
-          {balance !== null && <p>Balance: {balance}</p>}
+          <p className={balance === null? 'invisible': ''}>Balance: {balance}</p>
         </div>
 
         <div className='mt-5'>
