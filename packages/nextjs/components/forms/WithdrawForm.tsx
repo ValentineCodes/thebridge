@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
-import { useSwitchNetwork, useChainId, useAccount, useSigner, erc20ABI, useNetwork } from 'wagmi'
+import { prepareWriteContract, writeContract } from '@wagmi/core'
+import { useSwitchNetwork, useChainId, useAccount, erc20ABI, useNetwork } from 'wagmi'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import SelectNetwork from '../SelectNetwork'
 import Button from '../Button'
@@ -8,6 +9,8 @@ import { NumberInput, NumberInputField, Select } from '@chakra-ui/react'
 import { notification } from '~~/utils/scaffold-eth'
 import { ethers } from 'ethers'
 import { getProvider } from '~~/utils/providers'
+import NativeTokenCloneABI from "../../generated/abis/NativeTokenCloneABI.json"
+
 
 const ETHEREUM_NETWORKS = [{
   name: "Sepolia",
@@ -33,42 +36,42 @@ function WithdrawForm({}: Props) {
   const {address: connectedAccount, isConnected} = useAccount()
   const [balance, setBalance] = useState<string | null>(null)
   const chainId = useChainId()
-  const {data: signer, isLoading: isLoadingSigner} = useSigner()
   const [networkChainId, setNetworkChainId] = useState({layer1: ETHEREUM_NETWORKS[0].chainId, layer2: POLYGON_NETWORKS[0].chainId})
   const [selectedChainId, setSelectedChainId] = useState(ETHEREUM_NETWORKS[0].chainId)
   const [token, setToken] = useState({address: SEPOLIA_TOKENS_CLONES[0].address, amount: 0})
   const [isWithdrawing, setIsWithdrawing] = useState(false)
   const [tokens, setTokens] = useState<TokenClone[] | undefined>()
-  const {data: bridgeTokenClone, isLoading: isLoadingBridgeTokenClone} = useDeployedContractInfo("BridgeTokenClone")
   const { chain, chains } = useNetwork()
 
   const withdraw = async () => {
-   if(isWithdrawing) return
-   if(!isConnected) {
+    if(isWithdrawing) return
+    if(!isConnected) {
       notification.info("Connect Wallet")
       return
     }
-   if(isLoadingSigner || isLoadingBridgeTokenClone) {
-      notification.info("Loading resources...")
-      return
-    }
+
     if(token.amount <= 0) {
       notification.warning("Invalid amount!")
       return
     }
-    // if(token.amount > balance!) {
-    //   notification.error("Amount cannot exceed balance!")
-    //   return
-    // }
+    if(balance !== null && token.amount > Number(balance)) {
+      notification.error("Amount cannot exceed balance!")
+      return
+    }
 
     let notificationId = notification.loading("Withdrawing")
     setIsWithdrawing(true)
 
-    try{
-      const tokenClone = new ethers.Contract(token.address, bridgeTokenClone?.abi as any, signer)
+    try {
+      const config = await prepareWriteContract({
+        address: token.address,
+        abi: NativeTokenCloneABI,
+        functionName: "burn",
+        args: [ethers.utils.parseEther(token.amount.toString())]
+      })
 
-      const burnTx = await tokenClone.burn(ethers.utils.parseEther(token.amount.toString()))
-      await burnTx.wait(1)
+      const tx = await writeContract(config)
+      await tx.wait(1)
 
       notification.success("Successful Withdrawal")
     } catch(error) {
@@ -85,8 +88,7 @@ function WithdrawForm({}: Props) {
     if(!isConnected) return
 
     setBalance(null)
-    try{
-      console.log(token)
+    try {
       const provider = getProvider(String(chain.id))
       const _token = new ethers.Contract(token.address, erc20ABI, provider)
       const balance = await _token.balanceOf(connectedAccount)
