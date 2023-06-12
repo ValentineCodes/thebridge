@@ -140,7 +140,7 @@ function WithdrawForm({}: Props) {
             </div>
           </NumberInput>
         </div>
-        <p className='text-right text-sm text-gray-700'>Balance: {balance}</p>
+        {balance !== null && <p className='text-right text-sm text-gray-700'>Balance: {balance}</p>}
 
         <Button label='Withdraw' className='w-full' onClick={withdraw} isLoading={isWithdrawing} />
       </>
