@@ -90,7 +90,8 @@ function WithdrawForm({}: Props) {
     setBalance(null)
     try {
       const provider = getProvider(String(chain.id))
-      const _token = new ethers.Contract(token.address, erc20ABI, provider)
+
+      const _token = new ethers.Contract(token.address, NativeTokenCloneABI, provider)
       const balance = await _token.balanceOf(connectedAccount)
 
       setBalance(Number(ethers.utils.formatEther(balance)).toFixed(4))
