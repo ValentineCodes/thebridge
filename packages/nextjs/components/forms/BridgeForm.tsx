@@ -102,7 +102,7 @@ function BridgeForm({}: Props) {
 
   useEffect(() => {
     readBalance()
-  }, [isConnected, chain])
+  }, [isConnected, connectedAccount, chain])
 
   useEffect(() => {
     if(isNetworkSwitched){
