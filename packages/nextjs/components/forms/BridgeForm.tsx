@@ -28,10 +28,10 @@ interface TokenClone {
   address: string;
 }
 
-const SEPOLIA_VAULTS = [{name: "ETH", address: ""}]
-const MUMBAI_VAULTS = [{name: "MATIC", address: "0x737dD6121643a37bcCB542eB8b0085583fa7350e"}]
-const SEPOLIA_TOKENS_CLONES = [{name: "ETHc", address: ""}]
-const MUMBAI_TOKENS_CLONES = [{name: "MATICc", address: ""}]
+const SEPOLIA_VAULTS = [{name: "ETH", address: "0x2D82563d0aF68c3e66aCf2Cf3a014A6b5Effd72B"}]
+const MUMBAI_VAULTS = [{name: "MATIC", address: "0x34a6Cda938314782F330E6b7b6F2a97762623998"}]
+const SEPOLIA_TOKENS_CLONES = [{name: "ETHc", address: "0x553Dacc2eca5D8e0810A98509A8E0A4e68D48792"}]
+const MUMBAI_TOKENS_CLONES = [{name: "MATICc", address: "0xc4875dd18c7ebc75c259cfe4f22b2C3D3B653474"}]
 
 type Props = {}
 function BridgeForm({}: Props) {
