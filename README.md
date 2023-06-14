@@ -49,6 +49,16 @@ Deploy MATIC Clone. First change the name and symbol in `packages/hardhat/deploy
 
 Replace addresses in `packages/nextjs/components/forms/BridgeForm.tsx` and `packages/nextjs/components/forms/WithdrawForm.tsx` with the deployed contract addresses for the vaults and clones
 
+### Update backend
+
+Replace the addresses in `packages/backend/contracts` with the deployed contract addresses for the vaults and clones. Create a `.env` file with params from the `.env.example` file
+
+### Run backend
+
+```shell
+  yarn backend:start
+```
+
 ### Run frontend:
 
 ```shell
