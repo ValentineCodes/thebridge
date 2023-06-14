@@ -42,8 +42,8 @@ dotenv_1.default.config();
 const PROVIDER_API_KEY = process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 // providers
-const mumbaiProvider = new ethers_1.ethers.providers.JsonRpcProvider(`wss://polygon-mumbai.g.alchemy.com/v2/${PROVIDER_API_KEY}`);
-const sepoliaProvider = new ethers_1.ethers.providers.JsonRpcProvider(`wss://eth-sepolia.g.alchemy.com/v2/${PROVIDER_API_KEY}`);
+const mumbaiProvider = new ethers_1.ethers.providers.JsonRpcProvider(`https://polygon-mumbai.g.alchemy.com/v2/${PROVIDER_API_KEY}`);
+const sepoliaProvider = new ethers_1.ethers.providers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/${PROVIDER_API_KEY}`);
 // signers
 const mumbaiSigner = new ethers_1.ethers.Wallet(PRIVATE_KEY).connect(mumbaiProvider);
 const sepoliaSigner = new ethers_1.ethers.Wallet(PRIVATE_KEY).connect(sepoliaProvider);
