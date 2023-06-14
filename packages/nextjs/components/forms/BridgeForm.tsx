@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { useSwitchNetwork, useAccount, useNetwork } from 'wagmi'
+import { useSwitchNetwork, useAccount, useNetwork, erc20ABI } from 'wagmi'
 import { sendTransaction, prepareSendTransaction } from '@wagmi/core'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import SelectNetwork from '../SelectNetwork'
@@ -45,6 +45,7 @@ function BridgeForm({}: Props) {
   const [balance, setBalance] = useState<string | null>(null)
   const [isDepositing, setIsDepositing] = useState(false)
   const { chain, chains } = useNetwork()
+  const [metamaskToken, setMetamaskToken] = useState<any>()
 
   const deposit = async () => {
     if(isDepositing) return
@@ -74,7 +75,29 @@ function BridgeForm({}: Props) {
       const tx = await sendTransaction(config)
       await tx.wait(1)
 
-      notification.success("Successful Deposit")
+      try {
+        let cloneChainId
+        if(chain?.id === 11155111) {
+          cloneChainId = "80001"
+        } else {
+          cloneChainId = "11155111"
+        }
+
+        if(cloneChainId && receivedTokens) {
+          const provider = getProvider(cloneChainId)
+          const contract = new ethers.Contract(receivedTokens[0].address, erc20ABI, provider)
+          const [symbol, decimals] = await Promise.all([
+              contract.symbol(),
+              contract.decimals()
+          ])    
+          setMetamaskToken({address: receivedTokens[0].address, symbol, decimals})
+        }
+      } catch(error) {
+          console.log("failed to get token clone params")
+          console.error(error)
+      } finally {
+        notification.success("Successful Deposit")
+      }
     } catch(error) {
       notification.error(JSON.stringify(error))
     } finally{
@@ -82,6 +105,41 @@ function BridgeForm({}: Props) {
       setIsDepositing(false)
     }
   }
+
+  const addTokenToMetamask = async () => {
+    if(!metamaskToken) return
+    if(!isConnected) {
+        notification.info("Connect Wallet")
+        return
+    }
+    if(!window.ethereum) {
+        notification.info("Can't detect provider! Be sure to use the Metamask browser")
+        return
+    }
+    try {
+        const isAdded = await window.ethereum.request({
+            method: "wallet_watchAsset",
+            params: {
+                type: "ERC20",
+                options: {
+                    address: metamaskToken.address,
+                    symbol: metamaskToken.symbol,   
+                    decimals: metamaskToken.decimals
+                }
+            }
+        })
+
+        if(isAdded) {
+            notification.success(`${metamaskToken.symbol} added to Metamask`)
+            setMetamaskToken(null)
+        } else {
+            notification.error(`Failed to add ${metamaskToken.symbol} to Metamask`)
+        }
+    } catch(error) {
+        notification.error(`Failed to add ${metamaskToken.symbol} to Metamask`)
+        console.error(error)
+    }
+}
 
   const readBalance = async () => {
     if(!isConnected) return
@@ -144,7 +202,8 @@ function BridgeForm({}: Props) {
               </div>
           </div>
         </div>
-
+        
+        {metamaskToken? <Button outline label={`Add ${metamaskToken.symbol} to Metamask ${metamaskToken.symbol.toLowerCase() === "ethc" && chain?.id === 11155111? "(switch to Mumbai)": metamaskToken.symbol.toLowerCase() === "maticc" && chain?.id === 80001? "(switch to Sepolia)": ""}`} onClick={addTokenToMetamask} /> : null}
         <Button label="Deposit" onClick={deposit} isLoading={isDepositing} />
       </>
   )
