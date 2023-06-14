@@ -28,7 +28,8 @@
     "postinstall": "husky install",
     "precommit": "lint-staged",
     "vercel": "yarn workspace @thebridge/nextjs vercel",
-    "vercel:yolo": "yarn workspace @thebridge/nextjs vercel:yolo"
+    "vercel:yolo": "yarn workspace @thebridge/nextjs vercel:yolo",
+    "backend:start": "yarn workspace @thebridge/backend serve"
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
