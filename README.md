@@ -6,6 +6,8 @@
 
 [theBridge](https://thebridge-alpha.vercel.app) serves as a bridge between layer-1 and layer-2 native tokens.
 
+[Video Demo](https://youtu.be/aoQifZFNKEg)
+
 # How It Works
 
 To deposit, token is transferred to the vault contract, a 1% fee is extracted and an event is emitted with the deposit params. The token is then minted on the other chain as an ERC20 token
